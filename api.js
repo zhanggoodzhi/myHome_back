@@ -1,19 +1,55 @@
+'user strict'
 const express = require('express')
 const Note = require('./note')
 const router = express.Router()
 const fs = require('fs')
 const path = require('path')
 
+function removeDuplicate(arr1, arr2) {
+    const arr1Ids = arr1.map(v => v._id.toString());
+    const arr2Ids = arr2.map(v => v._id.toString());
+    const correctIds = Array.from(new Set(arr1Ids.concat(arr2Ids)));
+    const correctArr = [];
+    const allArr=arr1.concat(arr2);
+    correctIds.forEach(v=>{
+        for(let i=0;i<allArr.length;i++){
+            if(allArr[i].id.toString()===v){
+                correctArr.push(allArr[i]);
+                break;
+            }
+        }
+    });
+    return correctArr;
+}
+
 // 查询所有日志
 router.get('/api/getNotes', (req, res) => {
-    Note.find({}, {
+    const keyword = req.query.keyword;
+    var pattern = new RegExp(keyword, 'i');
+    Note.find({
+        title: {
+            $regex: pattern
+        }
+    }, {
         __v: 0
     }, (err, notes) => {
         if (err) {
             res.send(err)
             return
         }
-        res.json(notes)
+        Note.find({
+            content: {
+                $regex: pattern
+            }
+        }, {
+            __v: 0
+        }, (err2, notes2) => {
+            if (err2) {
+                res.send(err2)
+                return
+            }
+            res.json(removeDuplicate(notes,notes2));
+        })
     })
 })
 
