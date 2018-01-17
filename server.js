@@ -1,5 +1,6 @@
 const api = require('./api')
 const express = require('express')
+const path = require('path')
 const app = express()
 const port = 3000;
 const bodyParser = require('body-parser');
@@ -15,7 +16,9 @@ app.all('*', function (req, res, next) {
     next();
 });
 
-app.use(api)
+app.use(api);
+app.use(express.static(path.join(__dirname, 'dist')));
+
 app.listen(port, function () {
     console.log('服务器已开启，端口：' + port);
 })
