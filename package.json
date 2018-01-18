@@ -11,9 +11,10 @@
     "url": "git+https://github.com/zhanggoodzhi/myHome_back.git"
   },
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "compression": "^1.7.1",
     "express": "^4.16.2",
-    "mongoose": "^4.13.6",
-    "body-parser": "^1.18.2"
+    "mongoose": "^4.13.6"
   },
   "keywords": [],
   "author": "",
