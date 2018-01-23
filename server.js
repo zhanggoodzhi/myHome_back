@@ -1,3 +1,4 @@
+const jwtAuth = require('./middleware/jwtAuth');
 const api = require('./api')
 const express = require('express')
 const compression = require('compression');
@@ -5,6 +6,7 @@ const path = require('path')
 const app = express()
 const port = 80;
 const bodyParser = require('body-parser');
+const connectHistoryApiFallback = require('connect-history-api-fallback');
 app.use(compression());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
@@ -18,8 +20,17 @@ app.all('*', function (req, res, next) {
     next();
 });
 
+app.all('/api/*', jwtAuth);
+
 app.use(api);
+
+app.use('/', connectHistoryApiFallback());
+
 app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', function (req, res) {
+    res.redirect('/');
+});
 
 app.listen(port, function () {
     console.log('服务器已开启，端口：' + port);

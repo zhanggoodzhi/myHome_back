@@ -1,12 +1,15 @@
 'user strict'
+const superSecret = require('./config');
 const express = require('express');
-const Note = require('./note');
-const router = express.Router();
+const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const superagent = require('superagent');
 const cheerio = require('cheerio');
 
+const Note = require('./model/note');
+const User = require('./model/user');
+const router = express.Router();
 function removeDuplicate(arr1, arr2) {
     const arr1Ids = arr1.map(v => v._id.toString());
     const arr2Ids = arr2.map(v => v._id.toString());
@@ -24,6 +27,18 @@ function removeDuplicate(arr1, arr2) {
     return correctArr;
 }
 
+function deleteProperty(obj, string) {
+    const data = {};
+    Object
+        .keys(obj)
+        .forEach(v => {
+            if (v === string) {
+                return;
+            }
+            data[v] = obj[v];
+        });
+    return data;
+}
 function getGameHorseLamp(cb) {
     superagent
         .get('http://ol.gamersky.com')
@@ -204,6 +219,71 @@ router.get('/api/games/rank', (req, res) => {
     getGameRank(function (rank) {
         res.json(rank);
     });
+})
+
+// 登录接口
+
+router.post('/user/login', (req, res) => {
+    User
+        .findOne({
+            admin: req.body.admin
+        }, function (err, user) {
+            if (err) 
+                throw err;
+            if (!user) {
+                res.json({success: false, message: '没有该用户,请先注册'});
+            } else if (user) {
+                if (user.psd != req.body.psd) {
+                    res.json({success: false, message: '密码错误'});
+                } else {
+                    const token = jwt.sign({
+                        admin: user.admin,
+                        psd: user.psd,
+                        alias: user.alias
+                    }, superSecret, {
+                        expiresIn: 60 // 授权时效60分钟
+                    });
+                    res.json({success: true, admin: user.admin, alias: user.alias, message: '登录成功', token: token});
+                }
+            }
+        });
+})
+
+// 注册接口
+router.post('/user/register', (req, res) => {
+    console.log('注册：', req.body);
+    new User(req.body).save((err) => {
+        if (err) {
+            res.send(err);
+            return;
+        }
+        const filter = {};
+        Object
+            .keys(req.body)
+            .forEach(v => {
+                if (v === "rePsd") {
+                    return;
+                }
+                filter[v] = req.body[v];
+            });
+        const token = jwt.sign(filter, superSecret, {
+            expiresIn: 60 // 授权时效60分钟
+        });
+        const authData = {};
+        Object
+            .keys(req.body)
+            .forEach(v => {
+                if (v === "psd") {
+                    return;
+                }
+                authData[v] = req.body[v];
+            });
+        res.json({
+            ...authData,
+            message: '注册成功',
+            token: token
+        });
+    })
 })
 
 module.exports = router
