@@ -278,11 +278,10 @@ router.post('/user/register', (req, res) => {
                 }
                 authData[v] = req.body[v];
             });
-        res.json({
-            ...authData,
+        res.json(Object.assign({
             message: '注册成功',
             token: token
-        });
+        }, authData));
     })
 })
 
