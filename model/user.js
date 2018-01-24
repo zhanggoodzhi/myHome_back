@@ -5,14 +5,17 @@ var mongoose = require('../db.js'),
     Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-    admin: {
+    account: {
         type: String
     },
-    alias:{
+    alias: {
         type: String
     },
     psd: {
         type: String
+    },
+    ifAdmin: {
+        type: Boolean
     }
 });
 
