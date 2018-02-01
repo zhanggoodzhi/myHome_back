@@ -100,4 +100,16 @@ module.exports = function (router) {
             res.json({message: '删除留言成功'})
         })
     })
+
+    // 查询留言数量
+    router.get('/api/getNoteCount', (req, res) => {
+        Note.count({account: req.decoded.account}, function(err, num){
+            if (err) {
+                console.log("Error:" + err);
+            }
+            else {
+                res.send(num.toString())
+            }
+        })
+    })
 }

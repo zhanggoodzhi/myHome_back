@@ -16,7 +16,7 @@ app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHead' +
             'erFeild');
-    // res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
     next();
 });
 
@@ -26,7 +26,7 @@ app.use(api);
 
 app.use('/', connectHistoryApiFallback());
 
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, '../myHome_front/dist')));
 
 app.get('*', function (req, res) {
     res.redirect('/');
