@@ -28,11 +28,11 @@ app.use(api);
 app.use(connectHistoryApiFallback({
     rewrites: [
         {
-            from: '/index/',
+            from: '/index',
             to: '/index.html'
         },
         {
-            from: '/admin/',
+            from: '/admin',
             to: '/admin.html'
         }
     ]
