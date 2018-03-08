@@ -6,15 +6,16 @@ app.get('*', function (req, res, next) {
     var deviceAgent = req.headers["user-agent"].toLowerCase();
     var agentID = deviceAgent.match(/(iphone|ipod|ipad|android)/);
     if (agentID) {
+        next();
+    } else {
         console.log('重定向');
-        res.redirect('http://localhost:81/');
+        res.redirect('http://localhost/');
         return;
     }
-    next();
 })
 
-app.use(express.static(path.join(__dirname, '../myHome_front/dist')));
+app.use(express.static(path.join(__dirname, '../myHome_mobile_front/dist')));
 
-app.listen(80, function () {
-    console.log('服务器已开启，端口：' + 80);
+app.listen(81, function () {
+    console.log('服务器已开启，端口：' + 81);
 })
